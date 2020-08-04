@@ -8,12 +8,12 @@ COPY . .
 
 ENV GOOS=linux
 ENV GOARCH=amd64
-ENV CGO_ENABLE=0
+ENV CGO_ENABLED=0
 
-RUN go build -o bin/httpserver cmd/main.go
+RUN go build -o bin/httpserver -a -mod=vendor -ldflags '-extldflags "-static"' github.com/congcongke/httpfileserver/cmd
 
 FROM alpine:latest
 
 COPY --from=builder /go/src/github.com/congcongke/httpfileserver/bin/httpserver .
 
-ENTRYPOINT ["./httpserver"]
+CMD ["./httpserver"]

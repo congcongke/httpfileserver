@@ -1,6 +1,8 @@
 package server
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/congcongke/httpfileserver/pkg/config"
@@ -9,10 +11,14 @@ import (
 
 func LoadFromConfig(conf *config.Config) *gin.Engine {
 	e := gin.Default()
-	e.Use(middleware.ReqLoggerMiddleware(), middleware.BasicAuthHandle(conf.Auth.Username, conf.Auth.Password))
+
+	e.GET("", func(c *gin.Context) {
+		c.JSON(http.StatusOK, "pong")
+	})
 
 	lfh := NewLocalFileHandle(conf.RootPath)
 	fileGroup := e.Group("/file/v1")
+	fileGroup.Use(middleware.ReqLoggerMiddleware(), middleware.BasicAuthHandle(conf.Auth.Username, conf.Auth.Password))
 
 	fileGroup.GET("/:filename", lfh.Get)
 	fileGroup.PUT("/:filename", lfh.Put)

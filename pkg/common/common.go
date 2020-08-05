@@ -17,6 +17,7 @@ type AppErr struct {
 var (
 	ENotFound      = &AppErr{http.StatusNotFound, "NotFound", nil}
 	EInternalError = &AppErr{http.StatusInternalServerError, "InternalError", nil}
+	ETooBusy       = &AppErr{http.StatusConflict, "Too busy", nil}
 )
 
 func (e *AppErr) WithPayload(payload interface{}) *AppErr {

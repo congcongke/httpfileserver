@@ -17,8 +17,8 @@ func LoadFromConfig(conf *config.Config) *gin.Engine {
 	})
 
 	lfh := NewLocalFileHandle(conf.RootPath)
-	fileGroup := e.Group("/file/v1")
-	fileGroup.Use(middleware.ReqLoggerMiddleware(), middleware.BasicAuthHandle(conf.Auth.Username, conf.Auth.Password))
+	fileGroup := e.Group("/file/v1",
+		middleware.ReqLoggerMiddleware(), middleware.BasicAuthHandle(conf.Auth.Username, conf.Auth.Password))
 
 	fileGroup.GET("/:filename", lfh.Get)
 	fileGroup.PUT("/:filename", lfh.Put)

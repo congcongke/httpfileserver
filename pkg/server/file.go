@@ -41,7 +41,12 @@ func (l *LocalFileHandle) Get(c *gin.Context) {
 
 	subj := bson.NewObjectId().Hex()
 
-	l.l.Lock(fullpath, subj)
+	if locked := l.l.Lock(fullpath, subj); !locked {
+		logrus.Errorf("lock failed for %v, %v", fullpath, subj)
+		common.E(c, common.ETooBusy)
+		return
+	}
+
 	l.l.Unlock(fullpath, subj, func() error {
 		return nil
 	})
@@ -58,17 +63,24 @@ func (l *LocalFileHandle) Put(c *gin.Context) {
 	logrus.Infof(fakeName)
 
 	done := false
-	l.l.Lock(fullpath, subj)
+	if locked := l.l.Lock(fullpath, subj); !locked {
+		logrus.Errorf("lock failed for %v, %v", fullpath, subj)
+		common.E(c, common.ETooBusy)
+		return
+	}
+
 	defer func() {
 		l.l.Unlock(fullpath, subj, func() error {
+			logrus.Infof("upload done: %v", done)
 			if done {
 				e := os.Rename(fakeName, fullpath)
 				if e != nil {
+					logrus.Errorf("rename failed: %v", e)
 					common.E(c, e)
+					return e
 				}
-				return e
+				common.R(c, nil)
 			}
-			common.R(c, nil)
 			return nil
 		})
 	}()

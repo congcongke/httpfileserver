@@ -60,7 +60,7 @@ func (l *Lock) Unlock(filename, subj string, unlockFunc func() error) bool {
 		return false
 	}
 
-	delete(l.resources, subj)
+	delete(l.resources, filename)
 
 	if err := unlockFunc(); err != nil {
 		logrus.Error("failed for the unlock func: %v", err)

@@ -85,13 +85,15 @@ func BasicAuthHandle(user, password string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		usr, passwd, ok := c.Request.BasicAuth()
 		if !ok {
-			c.Status(http.StatusUnauthorized)
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
 		if usr != user || password != passwd {
-			c.Status(http.StatusUnauthorized)
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
+
+		c.Next()
 	}
 }
